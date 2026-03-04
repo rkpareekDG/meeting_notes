@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Meeting Bot - Presentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+        
+        .slide {
+            min-height: 100vh;
+            padding: 60px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            border-bottom: 1px solid #334155;
+            page-break-after: always;
+        }
+        
+        .slide.title-slide {
+            background: linear-gradient(135deg, #1e3a8a 0%, #7c3aed 100%);
+            text-align: center;
+        }
+        
+        .slide.title-slide h1 {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .slide.title-slide p {
+            font-size: 1.5rem;
+            opacity: 0.9;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            color: #60a5fa;
+            margin-bottom: 40px;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            color: #a78bfa;
+            margin: 30px 0 20px 0;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            color: #34d399;
+            margin: 20px 0 10px 0;
+        }
+        
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        li {
+            font-size: 1.1rem;
+            padding: 8px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        
+        li::before {
+            content: "•";
+            color: #60a5fa;
+            font-size: 1.5rem;
+            position: absolute;
+            left: 0;
+        }
+        
+        .diagram {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.4;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+            margin-top: 30px;
+        }
+        
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 25px;
+            border: 1px solid #334155;
+        }
+        
+        .card h3 {
+            margin-top: 0;
+        }
+        
+        .highlight {
+            color: #fbbf24;
+        }
+        
+        .emoji {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .flow-step {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            background: #1e293b;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .flow-step .number {
+            background: #7c3aed;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .arrow {
+            text-align: center;
+            color: #60a5fa;
+            font-size: 1.5rem;
+            margin: 5px 0;
+        }
+        
+        .slack-message {
+            background: #1a1d21;
+            border-radius: 8px;
+            padding: 20px;
+            border-left: 4px solid #4a154b;
+            margin: 20px 0;
+        }
+        
+        .slack-message .header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .slack-message .avatar {
+            width: 40px;
+            height: 40px;
+            background: #7c3aed;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+        }
+        
+        .slack-message .content {
+            background: #2d3136;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .button {
+            display: inline-block;
+            background: #1264a3;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            margin: 5px 5px 5px 0;
+            font-size: 0.9rem;
+        }
+        
+        .button.primary {
+            background: #007a5a;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .table th, .table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .table th {
+            background: #1e293b;
+            color: #60a5fa;
+        }
+        
+        .check {
+            color: #34d399;
+        }
+        
+        .cross {
+            color: #f87171;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .tech-badge {
+            background: #1e293b;
+            padding: 10px 20px;
+            border-radius: 20px;
+            border: 1px solid #334155;
+            font-size: 0.95rem;
+        }
+        
+        @media print {
+            .slide {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Slide 1: Title -->
+<div class="slide title-slide">
+    <h1>🤖 AI Meeting Operations Bot</h1>
+    <p>Intelligent Meeting Automation Platform</p>
+    <p style="margin-top: 40px; opacity: 0.7;">Automate summaries • Extract action items • Create tickets</p>
+</div>
+
+<!-- Slide 2: The Problem -->
+<div class="slide">
+    <h1>😩 The Problem</h1>
+    <div class="grid">
+        <div class="card">
+            <span class="emoji">📝</span>
+            <h3>Manual Meeting Notes</h3>
+            <p>Hours spent documenting meetings manually after they end</p>
+        </div>
+        <div class="card">
+            <span class="emoji">🕳️</span>
+            <h3>Lost Action Items</h3>
+            <p>Important tasks fall through the cracks, never getting done</p>
+        </div>
+        <div class="card">
+            <span class="emoji">🔄</span>
+            <h3>No Follow-up</h3>
+            <p>Meetings end without scheduled next steps or accountability</p>
+        </div>
+        <div class="card">
+            <span class="emoji">📊</span>
+            <h3>Scattered Information</h3>
+            <p>Notes in different tools, emails, documents - hard to find</p>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 3: The Solution -->
+<div class="slide">
+    <h1>✨ The Solution</h1>
+    <p style="font-size: 1.5rem; margin-bottom: 30px;">AI Meeting Bot <span class="highlight">automatically</span> processes your meetings:</p>
+    
+    <div class="flow-step">
+        <div class="number">1</div>
+        <div>
+            <strong>Captures Zoom recordings</strong><br>
+            Receives webhook when meeting ends
+        </div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="flow-step">
+        <div class="number">2</div>
+        <div>
+            <strong>AI-powered analysis</strong><br>
+            GPT-4 generates summary and extracts action items
+        </div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="flow-step">
+        <div class="number">3</div>
+        <div>
+            <strong>Posts to Slack</strong><br>
+            Rich formatted summary with interactive buttons
+        </div>
+    </div>
+    <div class="arrow">↓</div>
+    <div class="flow-step">
+        <div class="number">4</div>
+        <div>
+            <strong>One-click actions</strong><br>
+            Create Jira tickets • Schedule follow-ups
+        </div>
+    </div>
+</div>
+
+<!-- Slide 4: Key Features -->
+<div class="slide">
+    <h1>🎯 Key Features</h1>
+    <div class="grid grid-3">
+        <div class="card">
+            <span class="emoji">📹</span>
+            <h3>Zoom Integration</h3>
+            <ul>
+                <li>Auto-capture recordings</li>
+                <li>Process transcripts</li>
+                <li>Webhook-based triggers</li>
+            </ul>
+        </div>
+        <div class="card">
+            <span class="emoji">🤖</span>
+            <h3>AI Analysis</h3>
+            <ul>
+                <li>GPT-4 summarization</li>
+                <li>Action item extraction</li>
+                <li>Participant identification</li>
+            </ul>
+        </div>
+        <div class="card">
+            <span class="emoji">💬</span>
+            <h3>Slack Bot</h3>
+            <ul>
+                <li>Rich formatted messages</li>
+                <li>Interactive buttons</li>
+                <li>Real-time notifications</li>
+            </ul>
+        </div>
+        <div class="card">
+            <span class="emoji">📋</span>
+            <h3>Jira Integration</h3>
+            <ul>
+                <li>One-click ticket creation</li>
+                <li>Auto-populate details</li>
+                <li>Link to meeting context</li>
+            </ul>
+        </div>
+        <div class="card">
+            <span class="emoji">📅</span>
+            <h3>Outlook Calendar</h3>
+            <ul>
+                <li>Schedule follow-ups</li>
+                <li>Auto-invite participants</li>
+                <li>Add meeting context</li>
+            </ul>
+        </div>
+        <div class="card">
+            <span class="emoji">🔒</span>
+            <h3>Secure OAuth</h3>
+            <ul>
+                <li>User-based auth</li>
+                <li>No shared passwords</li>
+                <li>Encrypted tokens</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 5: System Architecture -->
+<div class="slide">
+    <h1>🏗️ System Architecture</h1>
+    <div class="diagram">
+                                  ┌─────────────────┐
+                                  │   SLACK BOT     │
+                                  │   Interface     │
+                                  └────────┬────────┘
+                                           │
+                                           ▼
+    ┌──────────────┐            ┌─────────────────────┐            ┌──────────────┐
+    │              │            │                     │            │              │
+    │    ZOOM      │───────────▶│     FASTAPI         │◀───────────│    USERS     │
+    │   Webhooks   │  webhooks  │     SERVER          │   OAuth    │   (Slack)    │
+    │              │            │                     │            │              │
+    └──────────────┘            └─────────────────────┘            └──────────────┘
+                                           │
+                        ┌──────────────────┼──────────────────┐
+                        │                  │                  │
+                        ▼                  ▼                  ▼
+                 ┌───────────┐      ┌───────────┐      ┌───────────┐
+                 │  OpenAI   │      │   Jira    │      │  Outlook  │
+                 │  GPT-4    │      │   Cloud   │      │  Calendar │
+                 └───────────┘      └───────────┘      └───────────┘
+    </div>
+</div>
+
+<!-- Slide 6: OAuth Flow -->
+<div class="slide">
+    <h1>🔐 OAuth Authorization Flow</h1>
+    <p style="margin-bottom: 30px;">Users authorize their own accounts - <span class="highlight">no shared passwords!</span></p>
+    
+    <div class="diagram">
+    ┌──────┐          ┌──────────┐          ┌──────────┐          ┌──────────┐
+    │ User │          │  Slack   │          │   Bot    │          │  Zoom    │
+    └──┬───┘          └────┬─────┘          └────┬─────┘          └────┬─────┘
+       │                   │                     │                     │
+       │  @MeetingBot      │                     │                     │
+       │──────────────────▶│                     │                     │
+       │                   │  Event: app_mention │                     │
+       │                   │────────────────────▶│                     │
+       │                   │                     │                     │
+       │                   │  Show "Connect"     │                     │
+       │                   │◀────────────────────│                     │
+       │                   │  Buttons            │                     │
+       │                   │                     │                     │
+       │  Click "Connect Zoom" button            │                     │
+       │─────────────────────────────────────────┼────────────────────▶│
+       │                   │                     │                     │
+       │                   │                     │      Login Page     │
+       │◀────────────────────────────────────────┼─────────────────────│
+       │                   │                     │                     │
+       │  Login & Authorize│                     │                     │
+       │──────────────────────────────────────────────────────────────▶│
+       │                   │                     │                     │
+       │                   │                     │  Auth Code + State  │
+       │                   │                     │◀────────────────────│
+       │                   │                     │                     │
+       │                   │                     │  Exchange for Token │
+       │                   │                     │────────────────────▶│
+       │                   │                     │◀─ Access Token ─────│
+       │                   │                     │                     │
+       │  "Zoom connected! ✅"                   │                     │
+       │◀────────────────────────────────────────│                     │
+    </div>
+</div>
+
+<!-- Slide 7: Meeting Flow -->
+<div class="slide">
+    <h1>📹 Meeting Processing Flow</h1>
+    <div class="grid">
+        <div>
+            <div class="flow-step">
+                <div class="number">1</div>
+                <div><strong>Meeting Ends</strong><br>User hosts Zoom meeting with recording enabled</div>
+            </div>
+            <div class="arrow">↓</div>
+            <div class="flow-step">
+                <div class="number">2</div>
+                <div><strong>Webhook Received</strong><br>Zoom sends recording.completed event to bot</div>
+            </div>
+            <div class="arrow">↓</div>
+            <div class="flow-step">
+                <div class="number">3</div>
+                <div><strong>Download Transcript</strong><br>Bot downloads using user's OAuth token</div>
+            </div>
+        </div>
+        <div>
+            <div class="flow-step">
+                <div class="number">4</div>
+                <div><strong>AI Analysis</strong><br>GPT-4 generates summary + action items</div>
+            </div>
+            <div class="arrow">↓</div>
+            <div class="flow-step">
+                <div class="number">5</div>
+                <div><strong>Post to Slack</strong><br>Rich message with summary + buttons</div>
+            </div>
+            <div class="arrow">↓</div>
+            <div class="flow-step">
+                <div class="number">6</div>
+                <div><strong>User Actions</strong><br>Create tickets, schedule follow-ups</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 8: Slack Message Example -->
+<div class="slide">
+    <h1>💬 Slack Message Example</h1>
+    <div class="slack-message">
+        <div class="header">
+            <div class="avatar">🤖</div>
+            <div>
+                <strong>Meeting Bot</strong>
+                <span style="color: #616061; margin-left: 10px;">2:35 PM</span>
+            </div>
+        </div>
+        <div class="content">
+            <h3 style="margin-top: 0;">📋 Meeting Summary</h3>
+            <p><strong>📅 Sprint Planning - Q1 2026</strong></p>
+            <p>🕐 Duration: 45 minutes &nbsp;&nbsp; 👥 Participants: John, Sarah, Mike, Lisa</p>
+            <hr style="border-color: #444; margin: 15px 0;">
+            <p><strong>📝 Summary</strong></p>
+            <p>The team discussed Q1 priorities, reviewed the backlog, and assigned story points. Key focus areas include the new authentication system and mobile app improvements.</p>
+            <hr style="border-color: #444; margin: 15px 0;">
+            <p><strong>🎯 Action Items</strong></p>
+            <p>1. <strong>@John</strong> - Complete API documentation by Friday</p>
+            <p>2. <strong>@Sarah</strong> - Review security requirements</p>
+            <p>3. <strong>@Mike</strong> - Set up staging environment</p>
+            <hr style="border-color: #444; margin: 15px 0;">
+            <span class="button primary">📋 Create All Tickets</span>
+            <span class="button">📅 Schedule Follow-up</span>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 9: Jira Ticket -->
+<div class="slide">
+    <h1>🎫 Auto-Created Jira Ticket</h1>
+    <div class="card" style="max-width: 700px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <span style="color: #60a5fa;">MEET-123</span>
+            <span class="tech-badge" style="background: #22c55e; color: white; padding: 5px 15px;">To Do</span>
+        </div>
+        <h2 style="margin-top: 0;">Complete API documentation by Friday</h2>
+        <hr style="border-color: #444; margin: 20px 0;">
+        <p><strong>Description:</strong></p>
+        <div style="background: #0f172a; padding: 15px; border-radius: 8px; margin: 10px 0;">
+            <p>Action item from meeting: <em>Sprint Planning - Q1 2026</em></p>
+            <br>
+            <p><strong>Context:</strong><br>
+            The team discussed the need for comprehensive API documentation to support the new authentication system.</p>
+            <br>
+            <p><strong>Original action item:</strong><br>
+            Complete API documentation by Friday</p>
+            <br>
+            <p><strong>Meeting date:</strong> March 3, 2026</p>
+            <hr style="border-color: #444; margin: 15px 0;">
+            <p style="color: #666;">🤖 Created by AI Meeting Bot</p>
+        </div>
+        <hr style="border-color: #444; margin: 20px 0;">
+        <p><strong>Assignee:</strong> John Smith &nbsp;&nbsp;&nbsp; <strong>Reporter:</strong> Meeting Bot</p>
+        <p><strong>Labels:</strong> <span class="tech-badge">meeting-action-item</span> <span class="tech-badge">auto-created</span></p>
+    </div>
+</div>
+
+<!-- Slide 10: Tech Stack -->
+<div class="slide">
+    <h1>🛠️ Technical Stack</h1>
+    <div class="grid">
+        <div class="card">
+            <h3>Backend</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">🐍 Python 3.11+</span>
+                <span class="tech-badge">⚡ FastAPI</span>
+                <span class="tech-badge">📦 Pydantic 2.x</span>
+                <span class="tech-badge">🔄 HTTPX</span>
+                <span class="tech-badge">📝 Structlog</span>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Integrations</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">📹 Zoom API</span>
+                <span class="tech-badge">💬 Slack API</span>
+                <span class="tech-badge">🤖 OpenAI GPT-4</span>
+                <span class="tech-badge">📅 Microsoft Graph</span>
+                <span class="tech-badge">📋 Jira REST</span>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Security</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">🔐 OAuth 2.0</span>
+                <span class="tech-badge">🔒 AES-256-GCM</span>
+                <span class="tech-badge">✅ HMAC Verify</span>
+                <span class="tech-badge">🛡️ CSRF Protection</span>
+            </div>
+        </div>
+        <div class="card">
+            <h3>Infrastructure</h3>
+            <div class="tech-stack">
+                <span class="tech-badge">🐳 Docker</span>
+                <span class="tech-badge">☸️ Kubernetes</span>
+                <span class="tech-badge">📊 Health Checks</span>
+                <span class="tech-badge">♻️ Auto-Retry</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 11: Security -->
+<div class="slide">
+    <h1>🔒 Security Features</h1>
+    <table class="table">
+        <tr>
+            <th>Feature</th>
+            <th>Implementation</th>
+            <th>Benefit</th>
+        </tr>
+        <tr>
+            <td><strong>OAuth 2.0</strong></td>
+            <td>User-based authorization flow</td>
+            <td>No passwords stored, users control access</td>
+        </tr>
+        <tr>
+            <td><strong>Token Encryption</strong></td>
+            <td>AES-256-GCM with unique nonces</td>
+            <td>Tokens encrypted at rest</td>
+        </tr>
+        <tr>
+            <td><strong>Webhook Verification</strong></td>
+            <td>HMAC signature validation</td>
+            <td>Prevents fake webhook attacks</td>
+        </tr>
+        <tr>
+            <td><strong>CSRF Protection</strong></td>
+            <td>State parameter with expiry</td>
+            <td>Prevents authorization hijacking</td>
+        </tr>
+        <tr>
+            <td><strong>Scoped Permissions</strong></td>
+            <td>Minimal OAuth scopes requested</td>
+            <td>Least privilege principle</td>
+        </tr>
+    </table>
+</div>
+
+<!-- Slide 12: ROI -->
+<div class="slide">
+    <h1>📈 Business Value & ROI</h1>
+    <div class="grid">
+        <div class="card">
+            <span class="emoji">⏱️</span>
+            <h3>Time Savings</h3>
+            <ul>
+                <li><strong>15-30 min</strong> saved per meeting (no manual notes)</li>
+                <li><strong>5 min</strong> saved per action item (auto tickets)</li>
+                <li><strong>10 min</strong> saved per follow-up (auto scheduling)</li>
+            </ul>
+        </div>
+        <div class="card">
+            <span class="emoji">📊</span>
+            <h3>Monthly Impact</h3>
+            <ul>
+                <li>10 meetings/week × 20 min = <strong>200 min/week</strong></li>
+                <li>800 min/month = <strong>13+ hours saved</strong> per person</li>
+                <li>Team of 10 = <strong>130+ hours/month</strong></li>
+            </ul>
+        </div>
+        <div class="card">
+            <span class="emoji">✅</span>
+            <h3>Accountability</h3>
+            <ul>
+                <li>No action items lost</li>
+                <li>Clear ownership (auto-assignment)</li>
+                <li>Tracked in Jira for reporting</li>
+            </ul>
+        </div>
+        <div class="card">
+            <span class="emoji">📝</span>
+            <h3>Documentation</h3>
+            <ul>
+                <li>Searchable meeting history</li>
+                <li>Context preserved in tickets</li>
+                <li>Decisions documented automatically</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 13: Quick Start -->
+<div class="slide">
+    <h1>🚀 Quick Start</h1>
+    <div class="grid">
+        <div>
+            <h2>1. Clone & Install</h2>
+            <div class="diagram" style="font-size: 0.85rem;">git clone &lt;repository&gt;
+cd ai-meeting-bot-python
+
+python -m venv venv
+source venv/bin/activate
+pip install -e .</div>
+            
+            <h2>2. Configure</h2>
+            <div class="diagram" style="font-size: 0.85rem;">cp .env.example .env
+# Edit .env with your credentials</div>
+        </div>
+        <div>
+            <h2>3. Start ngrok</h2>
+            <div class="diagram" style="font-size: 0.85rem;">ngrok http 3000
+# Copy the https URL</div>
+            
+            <h2>4. Run Server</h2>
+            <div class="diagram" style="font-size: 0.85rem;">python run.py
+# Server at http://localhost:3000</div>
+            
+            <h2>5. Test in Slack</h2>
+            <div class="diagram" style="font-size: 0.85rem;">@MeetingBot setup</div>
+        </div>
+    </div>
+</div>
+
+<!-- Slide 14: Summary -->
+<div class="slide title-slide">
+    <h1>🎯 Summary</h1>
+    <div style="text-align: left; max-width: 800px; margin: 0 auto;">
+        <h2 style="color: white;">What We Built</h2>
+        <ul style="font-size: 1.3rem;">
+            <li><span class="check">✅</span> AI-Powered Meeting Bot with GPT-4</li>
+            <li><span class="check">✅</span> OAuth-based secure authentication</li>
+            <li><span class="check">✅</span> Automatic summary generation</li>
+            <li><span class="check">✅</span> Action item extraction</li>
+            <li><span class="check">✅</span> One-click Jira ticket creation</li>
+            <li><span class="check">✅</span> Follow-up meeting scheduling</li>
+        </ul>
+        <br>
+        <h2 style="color: white;">Get Started</h2>
+        <div class="diagram" style="text-align: center; font-size: 1.2rem;">
+@MeetingBot setup
+        </div>
+    </div>
+</div>
+
+<!-- Slide 15: Thank You -->
+<div class="slide title-slide">
+    <h1>🙏 Thank You!</h1>
+    <p style="font-size: 1.5rem; margin-top: 30px;">Questions?</p>
+    <div style="margin-top: 50px;">
+        <p>📖 Documentation: <code>/docs/README.md</code></p>
+        <p>💬 Support: <code>#meeting-bot-support</code></p>
+    </div>
+</div>
+
+</body>
+</html>

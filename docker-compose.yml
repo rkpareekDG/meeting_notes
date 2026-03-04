@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  ai-meeting-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-meeting-bot-python
+    ports:
+      - "3000:3000"
+    environment:
+      # Server
+      - HOST=0.0.0.0
+      - PORT=3000
+      - ENVIRONMENT=development
+      - LOG_LEVEL=INFO
+
+      # Zoom Configuration
+      - ZOOM_CLIENT_ID=${ZOOM_CLIENT_ID}
+      - ZOOM_CLIENT_SECRET=${ZOOM_CLIENT_SECRET}
+      - ZOOM_ACCOUNT_ID=${ZOOM_ACCOUNT_ID}
+      - ZOOM_WEBHOOK_SECRET_TOKEN=${ZOOM_WEBHOOK_SECRET_TOKEN}
+
+      # Slack Configuration
+      - SLACK_BOT_TOKEN=${SLACK_BOT_TOKEN}
+      - SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET}
+      - SLACK_APP_TOKEN=${SLACK_APP_TOKEN}
+      - SLACK_DEFAULT_CHANNEL=${SLACK_DEFAULT_CHANNEL:-general}
+
+      # OpenAI Configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4-turbo-preview}
+
+      # Microsoft Graph Configuration
+      - MICROSOFT_CLIENT_ID=${MICROSOFT_CLIENT_ID}
+      - MICROSOFT_CLIENT_SECRET=${MICROSOFT_CLIENT_SECRET}
+      - MICROSOFT_TENANT_ID=${MICROSOFT_TENANT_ID}
+
+      # Jira Configuration
+      - JIRA_HOST=${JIRA_HOST}
+      - JIRA_EMAIL=${JIRA_EMAIL}
+      - JIRA_API_TOKEN=${JIRA_API_TOKEN}
+      - JIRA_DEFAULT_PROJECT=${JIRA_DEFAULT_PROJECT}
+      - JIRA_AUTO_CREATE_TICKETS=${JIRA_AUTO_CREATE_TICKETS:-false}
+
+      # Security
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3000/api/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Optional: Redis for production queue (uncomment if needed)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: ai-meeting-bot-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis_data:/data
+  #   restart: unless-stopped
+
+# volumes:
+#   redis_data:
