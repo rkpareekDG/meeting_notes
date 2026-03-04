@@ -145,3 +145,5 @@ Thumbs.db
 # Project specific
 data/
 *.transcript
+.env
+.env.example
